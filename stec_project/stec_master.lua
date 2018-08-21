@@ -1,5 +1,5 @@
-require("vassal_object");
-require("elector_appeasement");
+require("stec_project/vassal_object");--will need to change this for pack file
+require("stec_project/stec_archive/elector_appeasement");--will need to change this for pack file
 ---------------------------------------------------------------
 --Setting up vassal table and entering in core empire vassals.
 local empire_vassal_table = {}--: vector<VRM>
@@ -135,7 +135,7 @@ function force_make_vassal()
 end;
 
 --This Listener is EOM dependent - checks to see if Vlad is an elector - if so, adds a new record to the table, else (if sylvania isnt an elector) creates a listener for the dilemma that can make Vlad official.
-function vlad_listener()
+function stec_vlad_listener()
         if get_elector("wh_main_vmp_schwartzhafen"):status() == "normal" then
             table.insert(empire_vassal_table, vampire);
         elseif get_elector("wh_main_emp_sylvania"):status() ~= "normal" then
@@ -144,7 +144,7 @@ function vlad_listener()
                 "DilemmaChoiceMade", 
                 function(context) return (context:dilemma() == "eom_vampire_war_4" and context:choice() == 0) end, 
                 function(context) 
-                    table.insert(empire_vassal_table, vampire);
+                    table.insert(empire_vassal_table, stec_vampire);
                 end, 
                 false
             );
@@ -152,20 +152,38 @@ function vlad_listener()
 end;
     
 -- This listener is EOM deendant - checks to see if Sylvania is an official elector - if so, adds a new record to the table, else (if vlad isnt an elector) creates a listner for the dilemma that can make Sylvania official.
-function sylvania_listener()
+function stec_sylvania_listener()
         if get_elector("wh_main_emp_sylvania"):status() == "normal" then
-            table.insert(empire_vassal_table, sylvania);
+            table.insert(empire_vassal_table, stec_sylvania);
         elseif get_elector("wh_main_vmp_schwartzhafen"):status() ~= "normal" then
         core:add_listener(
             "EOM_sylvania_listener", 
             "DilemmaChoiceMade", 
             function(context) return (context:dilemma() == "eom_vampire_war_5" and context:choice() == 1) end, 
             function(context) 
-                table.insert(empire_vassal_table, sylvania);           
+                table.insert(empire_vassal_table, stec_sylvania);           
             end, 
             false
         );
         end;
+end;
+
+-- This listener is EOM deendant - checks to see if Marienburg is an official elector - if so, adds a new record to the table, else creates a listner for the dilemma that can make Marienburg official.
+--NEED DILEMMA NAME AND CHOICE
+function stec_marienburg_listener()
+    if get_elector("wh_main_emp_marienburg"):status() == "normal" then
+        table.insert(empire_vassal_table, stec_marienburg);
+    else
+        core:add_listener(
+            "EOM_marienburg_listener", 
+            "DilemmaChoiceMade", 
+            function(context) return (context:dilemma() == "xxxxxxxxxxxxxxxx" and context:choice() == 1) end, 
+            function(context) 
+                table.insert(empire_vassal_table, stec_marienburg);           
+            end, 
+            false
+        );
+    end;
 end;
 
 ---------------------------------------------------------------
@@ -214,17 +232,24 @@ function stec_master()
     if eom then
         eom:set_core_data("tweaker_no_full_loyalty_events", true); --disables EOM confederating stuff.
         force_make_vassal();
-        local marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "xxx", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},000,000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
-        local sylvania = vassal_object_manager.new("wh_main_emp_sylvania", "wh_main_emp_empire", "wh_main_western_sylvania", "xxx", "wh_main_western_sylvania_castle_templehof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
-        local vampire = vassal_object_manager.new("wh_main_vmp_schwartzhafen","wh_main_emp_empire", "wh_main_eastern_sylvania", "xxx", "wh_main_eastern_sylvania_castle_frakenhof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000,"wh_main_emp_art_mortar,wh_main_vmp_inf_grave_guard_1,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_cav_black_knights_0,wh_main_vmp_mon_dire_wolves,wh_main_vmp_mon_fell_bats,wh_main_vmp_mon_fell_bats");
+         stec_marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "xxx", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},000,000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
+         stec_sylvania = vassal_object_manager.new("wh_main_emp_sylvania", "wh_main_emp_empire", "wh_main_western_sylvania", "xxx", "wh_main_western_sylvania_castle_templehof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
+         stec_vampire = vassal_object_manager.new("wh_main_vmp_schwartzhafen","wh_main_emp_empire", "wh_main_eastern_sylvania", "xxx", "wh_main_eastern_sylvania_castle_frakenhof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000,"wh_main_emp_art_mortar,wh_main_vmp_inf_grave_guard_1,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_cav_black_knights_0,wh_main_vmp_mon_dire_wolves,wh_main_vmp_mon_fell_bats,wh_main_vmp_mon_fell_bats");
         -- need to get XY co-ords for new factions. Create ancillary too.
        
-        vlad_listener();
-        sylvania_listener();
+        stec_vlad_listener();
+        stec_sylvania_listener();
 
 -- If no EOM then do this.
     else
         elector_appeasement_listeners()
     end;
 end;
-    
+
+
+
+--TO DO
+--region transfer dilemmas & ressurection.
+-- get the kailua definitions for EOM lua stuff.
+--creation of new ancillaries for vlad/ sylvania/ marienburg
+--testing uughghghghghghghg
