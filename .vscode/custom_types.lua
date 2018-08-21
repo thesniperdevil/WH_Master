@@ -1,0 +1,1 @@
+--# assume global class VRM
