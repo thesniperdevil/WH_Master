@@ -225,7 +225,6 @@ function stec_sylvania_listener()
 end;
 
 -- This listener is EOM deendant - checks to see if Marienburg is an official elector - if so, adds a new record to the table, else creates a listner for the dilemma that can make Marienburg official.
---NEED DILEMMA NAME AND CHOICE
 function stec_marienburg_listener()
     if eom:get_elector("wh_main_emp_marienburg"):status() == "normal" then
         table.insert(empire_vassal_table, stec_marienburg);
@@ -233,7 +232,7 @@ function stec_marienburg_listener()
         core:add_listener(
             "EOM_marienburg_listener", 
             "DilemmaChoiceMade", 
-            function(context) return (context:dilemma() == "xxxxxxxxxxxxxxxx" and context:choice() == 1) end, 
+            function(context) return (context:dilemma() == "eom_marienburg_rebellion_2" and context:choice() == 0) or (context:dilemma() == "eom_marienburg_invaded_2" and context:choice() == 0) end, 
             function(context) 
                 table.insert(empire_vassal_table, stec_marienburg);           
             end, 
@@ -278,11 +277,12 @@ end;
 ---------------------------------------------------------------
 -- Function intitiates mod - detects for Empire of Man.
 function stec_master()
-
+ 
     -- listeners that always run go here.
     cm:force_diplomacy("culture:wh_main_emp_empire", "culture:wh_main_emp_empire", "vassal", true, true, false); --allows Empire to vassal other empire provinces
     vassal_ancillary_listener();
     vassal_sack_listener();
+    stec_dilemma_listener();
 
     -- This detects for "Empire OF Man" Mod by Drunbk Flamingo. If that mod is present this mod will adapt and become a submod.
     if eom then
@@ -291,7 +291,7 @@ function stec_master()
          stec_marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "xxx", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},000,000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
          stec_sylvania = vassal_object_manager.new("wh_main_emp_sylvania", "wh_main_emp_empire", "wh_main_western_sylvania", "xxx", "wh_main_western_sylvania_castle_templehof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
          stec_vampire = vassal_object_manager.new("wh_main_vmp_schwartzhafen","wh_main_emp_empire", "wh_main_eastern_sylvania", "xxx", "wh_main_eastern_sylvania_castle_frakenhof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000,"wh_main_emp_art_mortar,wh_main_vmp_inf_grave_guard_1,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_cav_black_knights_0,wh_main_vmp_mon_dire_wolves,wh_main_vmp_mon_fell_bats,wh_main_vmp_mon_fell_bats");
-        -- need to get XY co-ords for new factions. Create ancillary too.
+     
        
         stec_vlad_listener();
         stec_sylvania_listener();
@@ -305,6 +305,7 @@ end;
 
 
 --TO DO
--- get the kailua definitions for EOM lua stuff.
+
 --creation of new ancillaries for vlad/ sylvania/ marienburg
+--get army spawning X Y co-ords for marienburg, sylvania and vlad
 --testing uughghghghghghghg
