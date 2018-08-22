@@ -1,5 +1,6 @@
 require("stec_project/vassal_object");--will need to change this for pack file
 require("stec_project/stec_archive/elector_appeasement");--will need to change this for pack file
+eom = _G.eom 
 ---------------------------------------------------------------
 --Setting up vassal table and entering in core empire vassals.
 local empire_vassal_table = {}--: vector<VRM>
@@ -77,9 +78,9 @@ function vassal_sack_listener()
 
                     cm:transfer_region_to_faction(this_region, vassal_name);
 
-                    if eom then --loyalty change for EOM.
-                        model.get_elector(vassal_name):change_loyalty(10)
-                    end;
+                    if eom then
+                        eom:get_elector(vassal_name):change_loyalty(10)
+                    end
 
 				end;
 			end;
@@ -177,9 +178,9 @@ function force_make_vassal()
                 local this_vassal = empire_vassal_table[i].vassal_name;
                 --local this_is_vassal = empire_vassal_table[i].is_vassal_of("wh_main_emp_empire");
             
-                if get_elector(this_vassal):loyalty() > 99 and get_elector(this_vassal):status() == "normal" then
+                if eom:get_elector(this_vassal):loyalty() > 99 and eom:get_elector(this_vassal):status() == "normal" then
                     cm:force_make_vassal("wh_main_emp_empire",this_vassal);
-                --else if get_elector(this_vassal):loyalty() < 10 and this_is_vassal then
+                --else ifeom:get_elector(this_vassal):loyalty() < 10 and this_is_vassal then
                     --do somehting to make vassal secceed.
                 end;
             end;
@@ -191,9 +192,9 @@ end;
 
 --This Listener is EOM dependent - checks to see if Vlad is an elector - if so, adds a new record to the table, else (if sylvania isnt an elector) creates a listener for the dilemma that can make Vlad official.
 function stec_vlad_listener()
-        if get_elector("wh_main_vmp_schwartzhafen"):status() == "normal" then
+        if eom:get_elector("wh_main_vmp_schwartzhafen"):status() == "normal" then
             table.insert(empire_vassal_table, stec_vampire);
-        elseif get_elector("wh_main_emp_sylvania"):status() ~= "normal" then
+        elseif eom:get_elector("wh_main_emp_sylvania"):status() ~= "normal" then
             core:add_listener(
                 "EOM_vlad_listener", 
                 "DilemmaChoiceMade", 
@@ -208,9 +209,9 @@ end;
     
 -- This listener is EOM deendant - checks to see if Sylvania is an official elector - if so, adds a new record to the table, else (if vlad isnt an elector) creates a listner for the dilemma that can make Sylvania official.
 function stec_sylvania_listener()
-        if get_elector("wh_main_emp_sylvania"):status() == "normal" then
+        if eom:get_elector("wh_main_emp_sylvania"):status() == "normal" then
             table.insert(empire_vassal_table, stec_sylvania);
-        elseif get_elector("wh_main_vmp_schwartzhafen"):status() ~= "normal" then
+        elseif eom:get_elector("wh_main_vmp_schwartzhafen"):status() ~= "normal" then
         core:add_listener(
             "EOM_sylvania_listener", 
             "DilemmaChoiceMade", 
@@ -226,7 +227,7 @@ end;
 -- This listener is EOM deendant - checks to see if Marienburg is an official elector - if so, adds a new record to the table, else creates a listner for the dilemma that can make Marienburg official.
 --NEED DILEMMA NAME AND CHOICE
 function stec_marienburg_listener()
-    if get_elector("wh_main_emp_marienburg"):status() == "normal" then
+    if eom:get_elector("wh_main_emp_marienburg"):status() == "normal" then
         table.insert(empire_vassal_table, stec_marienburg);
     else
         core:add_listener(
@@ -304,7 +305,6 @@ end;
 
 
 --TO DO
---region transfer dilemmas & ressurection.
 -- get the kailua definitions for EOM lua stuff.
 --creation of new ancillaries for vlad/ sylvania/ marienburg
 --testing uughghghghghghghg
