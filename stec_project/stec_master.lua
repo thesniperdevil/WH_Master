@@ -77,7 +77,7 @@ function vassal_sack_listener()
 
                     cm:transfer_region_to_faction(this_region, vassal_name);
 
-                    if eom then -- loyalty change for EOM.
+                    if eom then --loyalty change for EOM.
                         model.get_elector(vassal_name):change_loyalty(10)
                     end;
 
@@ -112,17 +112,71 @@ function vassal_effect_listener()
     true);
 end;
 
+-- Listener for the two region dilemmas. Will gift all regions to rightful owners depending on who owns them. Will also ressurect factions if they are dead.
+function stec_dilemma_listener()
+    core:add_listener(
+        "stec_dilemma_listener",
+        "DilemmaChoiceMadeEvent", 
+        function(context) return (context:dilemma() == "vas_reg_main_emp_respect_borders" and context:choice() == 0) or (context:dilemma() == "vas_reg_main_emp_vassal_respect" and context:choice() == 0) end, 
+        function(context)
+            local temp_bool = true
+            
+            if context:dilemma() == "vas_reg_main_emp_respect_borders" then
+                temp_bool = true
+            elseif context:dilemma() == "vas_reg_main_emp_vassal_respect" then
+                temp_bool = false
+            end;
+            
+            for i=1, #empire_vassal_table do
+                if empire_vassal_table[i]:emergence_check(temp_bool) then
+                    empire_vassal_table[i]:emerging_army();
+                end;
+                cm:callback(function() empire_vassal_table[i]:region_transfer(temp_bool); end, 0.5); --callback gives time for army to spawn before region transfers.
+            end;
+    
+        end,
+        true
+    );
+end;
+
+-- Dilemma countdown currently set to get 2 dilemmas every 20 turns!
+function stec_dielmma_trigger()
+    local dilemma_countdown = 20;
+
+    core:add_listener(
+        "countdown_FactionTurnStart",
+        "FactionTurnStart",
+        function(context)
+            return context:faction():name() == "wh_main_emp_empire"; --overlord faction
+        end,
+        function(context)
+        
+            dilemma_countdown = dilemma_countdown - 1;
+            
+            if dilemma_countdown <= 0 then
+                dilemma_countdown = 20;
+                return;
+            elseif dilemma_countdown == 15 then
+                cm:trigger_dilemma("wh_main_emp_empire", "vas_reg_main_emp_respect_borders", true);
+            elseif dilemma_countdown == 5 then
+                cm:trigger_dilemma("wh_main_emp_empire", "vas_reg_main_emp_vassal_respect", true);
+            end;
+        end,
+        true
+    );
+end;
+
 -- function for use with EOM - forces vassaling when someone is at max loyalty at the satrt of Empire turn.
 function force_make_vassal()
     core:add_listener(
-        "EOM_loyalty_listener", 
-        "FactionTurnStart", 
-        function(context) return context:faction():name() == "wh_main_emp_empire" end, 
+    "EOM_loyalty_listener", 
+    "FactionTurnStart", 
+    function(context) return context:faction():name() == "wh_main_emp_empire" end, 
         function(context) 
             for i=1, #empire_vassal_table do
                 local this_vassal = empire_vassal_table[i].vassal_name;
                 --local this_is_vassal = empire_vassal_table[i].is_vassal_of("wh_main_emp_empire");
-        
+            
                 if get_elector(this_vassal):loyalty() > 99 and get_elector(this_vassal):status() == "normal" then
                     cm:force_make_vassal("wh_main_emp_empire",this_vassal);
                 --else if get_elector(this_vassal):loyalty() < 10 and this_is_vassal then
@@ -134,10 +188,11 @@ function force_make_vassal()
     );
 end;
 
+
 --This Listener is EOM dependent - checks to see if Vlad is an elector - if so, adds a new record to the table, else (if sylvania isnt an elector) creates a listener for the dilemma that can make Vlad official.
 function stec_vlad_listener()
         if get_elector("wh_main_vmp_schwartzhafen"):status() == "normal" then
-            table.insert(empire_vassal_table, vampire);
+            table.insert(empire_vassal_table, stec_vampire);
         elseif get_elector("wh_main_emp_sylvania"):status() ~= "normal" then
             core:add_listener(
                 "EOM_vlad_listener", 

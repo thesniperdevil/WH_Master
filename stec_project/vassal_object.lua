@@ -24,6 +24,8 @@ function vassal_object_manager.new(vassal_name, vassal_overlord, home_province, 
 end;
 
 ------------------------------------------------------------------------
+-- More specialised functions
+
 -- Function checks a faction is a vassal, is alive and owns its origianl province (fundamental check for effects & ancillaries) 
 --v function(self: VRM) --> boolean
     function vassal_object_manager.condition_check(self)
@@ -44,12 +46,11 @@ end;
 
             return false -- the vassal does not own all of the given province, CHECK FAILS.
         end;
-        
 
-        
         return true -- above three checks passed, CHECK PASSES.
     end;
 
+-- Function checks to see if a given region is part of the region list of the vassal object.
 --v function(self: VRM, region_check: string) --> boolean
 function vassal_object_manager.region_list(self, region_check)
     local region_list = self.home_regions;
@@ -62,6 +63,73 @@ function vassal_object_manager.region_list(self, region_check)
     return false;
 
 end;
+
+-- function spawns an army defined army for the specified vassal object using definitions within the object itself.
+--v function(self: VRM) 
+    function vassal_object_manager.emerging_army(self)
+        out("TP_VAS: Army spawning for "..tostring(self.vassal_name));
+        local home_capital = tostring(self.home_capital);
+        local x = self.army_x	
+        local y = self.army_y
+        local vassal_name = self.vassal_name
+        local unit_list = self.unit_list
+    
+        cm:create_force(
+            vassal_name,
+            unit_list,
+            home_capital,
+            x,
+            y,
+            true,
+            true,
+            function(cqi --: CA_CQI
+            )
+                cm:apply_effect_bundle_to_characters_force("wh_main_bundle_military_upkeep_free_force", cqi, -1, true);
+            end
+        );
+    
+    end;
+
+-- Function checks to see if specific conditions are around to spawn an army to ressurect an empire faction and returns boolean.
+--v function(self: VRM, my_bool: boolean) --> boolean
+function vassal_object_manager.emergence_check(self, my_bool)
+    local this_vassal_interface = cm:model():world():faction_by_key(self.vassal_name);
+    local this_overlord_interface = cm:model():world():faction_by_key(self.vassal_overlord);
+    local this_capital_interface = cm:get_region(self.home_capital)
+       
+    if my_bool == true then -- emp dilemma
+        if this_vassal_interface:is_dead() and this_capital_interface:owning_faction():name() == self.vassal_overlord then
+            return true
+        else
+            return false
+        end;
+    elseif my_bool == false then -- vas dilemma
+        if this_vassal_interface:is_dead() and this_capital_interface:owning_faction():is_vassal_of(this_overlord_interface)then
+            return true
+        else
+            return false
+        end;
+    else
+        return false
+    end;
+end;
+
+--function transfers all "home regions" for vassal object to that vassal so long as conditions are met.
+--v function(self: VRM, my_bool: boolean)
+function vassal_object_manager.region_transfer(self, my_bool)
+    for i = 1, #self.home_regions do
+        local this_region = cm:get_region(self.home_regions[i]);
+        local this_overlord_interface = cm:model():world():faction_by_key(self.vassal_overlord);
+        local owner_check = this_region:owning_faction():is_vassal_of(this_overlord_interface);
+
+        if my_bool == 1 and this_region:owning_faction():name() == self.vassal_overlord then --means its emp dilemma & emp owns region
+            cm:transfer_region_to_faction(self.home_regions[i], self.vassal_name);
+        elseif my_bool == 0 and owner_check == true then --its vas dilemma and owner is vassal.
+            cm:transfer_region_to_faction(self.home_regions[i], self.vassal_name);		
+        end;
+    end;
+end;
+
 
 ------------------------------------------------------------------------
 -- These functions will return elements of the object that may be needed for comparisons. Not all are used - but could be useful for submods.

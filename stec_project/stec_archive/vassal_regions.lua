@@ -274,7 +274,7 @@ core:add_listener(
 --------------------------------------------------------------
 cm:add_saving_game_callback(
 	function(context)
-		cm:dilemma_countdown("turns_until_event", turns_until_event, context);
+		cm:save_named_value("turns_until_event", dilemma_countdown, context);
 	end
 );
 
