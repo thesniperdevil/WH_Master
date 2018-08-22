@@ -1,6 +1,6 @@
-global --This script defines a "vassal" object and its functions. Consider thes templates that are used by the master script.
+--This script defines a "vassal" object and its functions. Consider thes templates that are used by the master script.
 
-vassal_object_manager = {} --# assume vassal_object_manager: VRM --empty table populated by below constructer function.
+vassal_object_manager = {} --# assume global vassal_object_manager: VRM --empty table populated by below constructer function.
 
 ------------------------------------------------------------------------
 --this is a constructor function. It is used to define a new object. The object has a few arguments from the vassal name to details about spawning an army.

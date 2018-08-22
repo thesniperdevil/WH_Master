@@ -50,7 +50,7 @@ function vassal_ancillary_listener()
                 if temp:condition_check() and (current_province == temp_province) then
                     
                     if not context:character():has_ancillary(temp_ancillary) then
-                        cm:force_add_and_equip_ancillary(char_str, ancillary_name);
+                        cm:force_add_and_equip_ancillary(char_str, temp_ancillary);
                     end;
 
                 end;
@@ -68,7 +68,7 @@ function vassal_sack_listener()
 		"CharacterSackedSettlement", 
 		function(context) return context:character():faction():name() == "wh_main_emp_empire" end,
 		function(context)
-            local this_region = context:character():region()name();
+            local this_region = context:character():region():name();
                         
             for i = 1, #empire_vassal_table do
 			
