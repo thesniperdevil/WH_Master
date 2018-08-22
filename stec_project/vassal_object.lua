@@ -1,4 +1,4 @@
---This script defines a "vassal" object and its functions. Consider thes templates that are used by the master script.
+global --This script defines a "vassal" object and its functions. Consider thes templates that are used by the master script.
 
 vassal_object_manager = {} --# assume vassal_object_manager: VRM --empty table populated by below constructer function.
 
