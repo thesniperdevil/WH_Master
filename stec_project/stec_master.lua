@@ -289,18 +289,10 @@ function stec_master()
     if eom then
         eom:set_core_data("tweaker_no_full_loyalty_events", true); --disables EOM confederating stuff.
         force_make_vassal();
-<<<<<<< HEAD
          stec_marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "xxxxxx", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},408,474, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
          stec_sylvania = vassal_object_manager.new("wh_main_emp_sylvania", "wh_main_emp_empire", "wh_main_western_sylvania", "xxxxxx", "wh_main_western_sylvania_castle_templehof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 651, 444, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
          stec_vampire = vassal_object_manager.new("wh_main_vmp_schwartzhafen","wh_main_emp_empire", "wh_main_eastern_sylvania", "xxxxxx", "wh_main_eastern_sylvania_castle_frakenhof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 690, 422,"wh_main_emp_art_mortar,wh_main_vmp_inf_grave_guard_1,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_cav_black_knights_0,wh_main_vmp_mon_dire_wolves,wh_main_vmp_mon_fell_bats,wh_main_vmp_mon_fell_bats");
                
-=======
-         stec_marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "xxx", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},000,000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
-         stec_sylvania = vassal_object_manager.new("wh_main_emp_sylvania", "wh_main_emp_empire", "wh_main_western_sylvania", "xxx", "wh_main_western_sylvania_castle_templehof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
-         stec_vampire = vassal_object_manager.new("wh_main_vmp_schwartzhafen","wh_main_emp_empire", "wh_main_eastern_sylvania", "xxx", "wh_main_eastern_sylvania_castle_frakenhof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 000, 000,"wh_main_emp_art_mortar,wh_main_vmp_inf_grave_guard_1,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_cav_black_knights_0,wh_main_vmp_mon_dire_wolves,wh_main_vmp_mon_fell_bats,wh_main_vmp_mon_fell_bats");
-     
-       
->>>>>>> b51419cff63af6c1fb59d509e2932bff7af05789
         stec_vlad_listener();
         stec_sylvania_listener();
 
@@ -313,10 +305,6 @@ end;
 
 
 --TO DO
-<<<<<<< HEAD
-=======
-
->>>>>>> b51419cff63af6c1fb59d509e2932bff7af05789
 --creation of new ancillaries for vlad/ sylvania/ marienburg
 --get army spawning X Y co-ords for marienburg, sylvania and vlad
 --testing uughghghghghghghg
