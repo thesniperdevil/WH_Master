@@ -41,6 +41,7 @@ function vassal_ancillary_listener()
         function(context)
                 local current_province = context:character():region():province_name();
                 local char_str = cm:char_lookup_str(context:character())
+                out("STEC: ancillary listener fired");
 
 			for i=1, #empire_vassal_table do
                 local temp = empire_vassal_table[i];
@@ -52,6 +53,7 @@ function vassal_ancillary_listener()
                     
                     if not context:character():has_ancillary(temp_ancillary) then
                         cm:force_add_and_equip_ancillary(char_str, temp_ancillary);
+                        out("STEC: ancillary rewarded");
                     end;
 
                 end;
@@ -70,6 +72,7 @@ function vassal_sack_listener()
 		function(context) return context:character():faction():name() == "wh_main_emp_empire" end,
 		function(context)
             local this_region = context:character():region():name();
+            out("STEC: vassal sack listener fired");
                         
             for i = 1, #empire_vassal_table do
 			
@@ -77,6 +80,7 @@ function vassal_sack_listener()
                     local vassal_name = empire_vassal_table[i].vassal_name;
 
                     cm:transfer_region_to_faction(this_region, vassal_name);
+                    out("STEC: sack region transfer");
 
                     if eom then
                         eom:get_elector(vassal_name):change_loyalty(10)
@@ -98,6 +102,7 @@ function vassal_effect_listener()
         function(context)
             local counter = 0
             local this_faction = context:faction():name();
+            out("STEC: effect manager listner fired.");
                 
             for i =1, #empire_vassal_table do 
                 local temp = empire_vassal_table[i];
@@ -121,6 +126,7 @@ function stec_dilemma_listener()
         function(context) return (context:dilemma() == "vas_reg_main_emp_respect_borders" and context:choice() == 0) or (context:dilemma() == "vas_reg_main_emp_vassal_respect" and context:choice() == 0) end, 
         function(context)
             local temp_bool = true
+            out("STEC: dilemma listener fired.");
             
             if context:dilemma() == "vas_reg_main_emp_respect_borders" then
                 temp_bool = true
@@ -151,7 +157,7 @@ function stec_dielmma_trigger()
             return context:faction():name() == "wh_main_emp_empire"; --overlord faction
         end,
         function(context)
-        
+            out("STEC: countdown listnere fired.");
             dilemma_countdown = dilemma_countdown - 1;
             
             if dilemma_countdown <= 0 then
@@ -192,6 +198,7 @@ end;
 
 --This Listener is EOM dependent - checks to see if Vlad is an elector - if so, adds a new record to the table, else (if sylvania isnt an elector) creates a listener for the dilemma that can make Vlad official.
 function stec_vlad_listener()
+        out("STEC: EOM function vlad fired");
         if eom:get_elector("wh_main_vmp_schwartzhafen"):status() == "normal" then
             table.insert(empire_vassal_table, stec_vampire);
         elseif eom:get_elector("wh_main_emp_sylvania"):status() ~= "normal" then
@@ -209,6 +216,7 @@ end;
     
 -- This listener is EOM deendant - checks to see if Sylvania is an official elector - if so, adds a new record to the table, else (if vlad isnt an elector) creates a listner for the dilemma that can make Sylvania official.
 function stec_sylvania_listener()
+    out("STEC: EOM function sylvania fired");
         if eom:get_elector("wh_main_emp_sylvania"):status() == "normal" then
             table.insert(empire_vassal_table, stec_sylvania);
         elseif eom:get_elector("wh_main_vmp_schwartzhafen"):status() ~= "normal" then
@@ -226,13 +234,13 @@ end;
 
 -- This listener is EOM deendant - checks to see if Marienburg is an official elector - if so, adds a new record to the table, else creates a listner for the dilemma that can make Marienburg official.
 function stec_marienburg_listener()
+    out("STEC: EOM function marienburg fired");
     if eom:get_elector("wh_main_emp_marienburg"):status() == "normal" then
         table.insert(empire_vassal_table, stec_marienburg);
     else
         core:add_listener(
             "EOM_marienburg_listener", 
             "DilemmaChoiceMade", 
-            function(context) return (context:dilemma() == "xxxxxxxxxxxxxxxx" and context:choice() == 1) end, 
             function(context) return (context:dilemma() == "eom_marienburg_rebellion_2" and context:choice() == 0) or (context:dilemma() == "eom_marienburg_invaded_2" and context:choice() == 0) end, 
             function(context) 
                 table.insert(empire_vassal_table, stec_marienburg);           
@@ -278,7 +286,7 @@ end;
 ---------------------------------------------------------------
 -- Function intitiates mod - detects for Empire of Man.
 function stec_master()
- 
+    out("STEC: INIT");
     -- listeners that always run go here.
     cm:force_diplomacy("culture:wh_main_emp_empire", "culture:wh_main_emp_empire", "vassal", true, true, false); --allows Empire to vassal other empire provinces
     vassal_ancillary_listener();
@@ -287,6 +295,7 @@ function stec_master()
 
     -- This detects for "Empire OF Man" Mod by Drunbk Flamingo. If that mod is present this mod will adapt and become a submod.
     if eom then
+        out("STEC: EOM DETECTED");
         eom:set_core_data("tweaker_no_full_loyalty_events", true); --disables EOM confederating stuff.
         force_make_vassal();
          stec_marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "xxxxxx", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},408,474, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
@@ -298,6 +307,7 @@ function stec_master()
 
 -- If no EOM then do this.
     else
+        out("STEC: No EOM");
         elector_appeasement_listeners()
     end;
 end;
@@ -306,5 +316,4 @@ end;
 
 --TO DO
 --creation of new ancillaries for vlad/ sylvania/ marienburg
---get army spawning X Y co-ords for marienburg, sylvania and vlad
 --testing uughghghghghghghg

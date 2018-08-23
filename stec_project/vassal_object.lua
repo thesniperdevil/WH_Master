@@ -19,7 +19,7 @@ function vassal_object_manager.new(vassal_name, vassal_overlord, home_province, 
     self.army_y = army_y;
     self.unit_list = unit_list;
     
-
+    out("STEC: New vassal obnject entered: "..self.vassal_name);
     return self;
 end;
 
@@ -46,7 +46,7 @@ end;
 
             return false -- the vassal does not own all of the given province, CHECK FAILS.
         end;
-
+        out("STEC: Condition check Passed");
         return true -- above three checks passed, CHECK PASSES.
     end;
 
@@ -57,6 +57,7 @@ function vassal_object_manager.region_list(self, region_check)
 
     for i=1, #region_list do
         if region_list[i] == region_check then
+            out("");
             return true
         end;
     end;
@@ -67,7 +68,7 @@ end;
 -- function spawns an army defined army for the specified vassal object using definitions within the object itself.
 --v function(self: VRM) 
     function vassal_object_manager.emerging_army(self)
-        out("TP_VAS: Army spawning for "..tostring(self.vassal_name));
+        
         local home_capital = tostring(self.home_capital);
         local x = self.army_x	
         local y = self.army_y
@@ -87,7 +88,7 @@ end;
                 cm:apply_effect_bundle_to_characters_force("wh_main_bundle_military_upkeep_free_force", cqi, -1, true);
             end
         );
-    
+        out("STEC: Army spawned");
     end;
 
 -- Function checks to see if specific conditions are around to spawn an army to ressurect an empire faction and returns boolean.
@@ -99,12 +100,14 @@ function vassal_object_manager.emergence_check(self, my_bool)
        
     if my_bool == true then -- emp dilemma
         if this_vassal_interface:is_dead() and this_capital_interface:owning_faction():name() == self.vassal_overlord then
+            out("STEC: emp Dilemma ressurection check passed");
             return true
         else
             return false
         end;
     elseif my_bool == false then -- vas dilemma
         if this_vassal_interface:is_dead() and this_capital_interface:owning_faction():is_vassal_of(this_overlord_interface)then
+            out("STEC: vas Dilemma ressurection check passed");
             return true
         else
             return false
@@ -124,8 +127,10 @@ function vassal_object_manager.region_transfer(self, my_bool)
 
         if my_bool == 1 and this_region:owning_faction():name() == self.vassal_overlord then --means its emp dilemma & emp owns region
             cm:transfer_region_to_faction(self.home_regions[i], self.vassal_name);
+            out("STEC: emp dillemma region transfer");
         elseif my_bool == 0 and owner_check == true then --its vas dilemma and owner is vassal.
-            cm:transfer_region_to_faction(self.home_regions[i], self.vassal_name);		
+            cm:transfer_region_to_faction(self.home_regions[i], self.vassal_name);
+            out("STEC: vas dillemma region transfer");		
         end;
     end;
 end;
