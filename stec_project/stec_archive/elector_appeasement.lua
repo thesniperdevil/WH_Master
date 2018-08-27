@@ -20,7 +20,7 @@ local WIS_APPEASED = false; --# assume WIS_APPEASED: boolean
 function elector_appeasement_listeners()
 	
 -------------------------------------------------------------------------------
--- on FACTION TURN END for Empire, check to see what Empire factions have died and change appeasement back to true (in preparation for possible faction resurrection).
+-- on FACTION TURN END for Empire, check to see what Empire factions have died and change appeasement back to false (in preparation for possible faction resurrection).
 
 
 	core:add_listener(
@@ -80,34 +80,6 @@ function elector_appeasement_listeners()
 	true
 	);
 
-
--------------------------------------------------------------------------------
--- function monitors for empire occupation of entire Reikland.
-
-	core:add_listener(
-		"empire_occupy_reikland_monitor",
-		"GarrisonOccupiedEvent",
-		function(context) return context:character():region():province_name() == "wh_main_reikland"
-		end,
-		function(context)
-			out("STEC OCCUPIED EVENT: reikland has been occupied - checks occur")
-			local char = context:character();
-								
-			if  char:faction():name() == STEC_FACTIONEMPIRE	and cm:get_faction(STEC_FACTIONEMPIRE):holds_entire_province("wh_main_reikland", true) then -- if character occupying is empire & they own all of reikland.
-				cm:show_message_event(
-					STEC_FACTIONEMPIRE,
-					"event_feed_strings_text_stec_event_feed_string_scripted_event_reikland_unified_primary_detail",
-					"event_feed_strings_text_stec_event_feed_string_scripted_event_reikland_unified_secondary_detail",
-					"event_feed_strings_text_stec_event_feed_string_scripted_event_reikland_unified_flavour_text",
-					true,
-					591
-				);
-				out("STEC: Reikland is unified - message presented")
-			end;
-		end,
-	false
-	);
-		
 
 -------------------------------------------------------------------------------
 -- Start of FACTION TURN checks for divine sanction technology STIRLAND -- for testing use "tech_emp_barracks_1" in place of "tech_emp_worship_2"
@@ -179,7 +151,7 @@ function elector_appeasement_listeners()
 	core:add_listener(
 		"hochland_appease",
 		"CharacterCompletedBattle",
-		function(context) return context:character():faction():name() == STEC_FACTIONEMPIRE and context:character():has_military_force() == true and context:pending_battle():defender():faction():subculture() == "wh_dlc03_sc_bst_beastmen" end,
+		function(context) return context:character():faction():name() == STEC_FACTIONEMPIRE and context:character():has_military_force() == true and (context:pending_battle():defender():faction():subculture() == "wh_dlc03_sc_bst_beastmen" or context:pending_battle():attacker():faction():subculture() == "wh_dlc03_sc_bst_beastmen") end,
 
 		function(context)
 		
@@ -211,7 +183,7 @@ function elector_appeasement_listeners()
 	core:add_listener(
 		"ostland_appease",
 		"CharacterCompletedBattle",
-		function(context) return context:character():faction():name() == STEC_FACTIONEMPIRE and context:character():has_military_force() == true and context:pending_battle():defender():faction():subculture() == "wh_main_sc_nor_norsca" end,
+		function(context) return context:character():faction():name() == STEC_FACTIONEMPIRE and context:character():has_military_force() == true and (context:pending_battle():defender():faction():subculture() == "wh_main_sc_nor_norsca" or context:pending_battle():attacker():faction():subculture() == "wh_main_sc_nor_norsca")end,
 
 		function(context)
 		
@@ -256,8 +228,7 @@ function elector_appeasement_listeners()
 			
 				local current_char = char_list:item_at(i)
 				local char_name = current_char:get_forename()
-				out("STEC: CHeck Hero"..tostring(char_name))
-				
+								
 				if (char_name == "names_name_2147343849" or char_name == "names_name_2147343922" or char_name == "names_name_2147358013") and current_char:rank() > 20 then
 					cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_middenland");
 					cm:show_message_event(
@@ -331,10 +302,8 @@ function elector_appeasement_listeners()
 			
 				local current_region = region_list:item_at(i)
 				local forges_built = current_region:building_exists("wh_main_emp_forges_3")				
-				out("STEC: region: "..tostring(current_region).."has forge? "..tostring(forges_built));
-				
+								
 				if forges_built == true and WIS_APPEASED == false then -- this check occurs again in case multiple regions have the forge when the loop begins.
-					out("STEC: forge is built appeasement occurs")
 					cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_wissenland");
 					cm:show_message_event(
 						STEC_FACTIONEMPIRE,

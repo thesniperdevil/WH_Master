@@ -23,7 +23,7 @@ local ostermark = vassal_object_manager.new("wh_main_emp_ostermark", "wh_main_em
 table.insert(empire_vassal_table, ostermark);
 local talabecland = vassal_object_manager.new("wh_main_emp_talabecland", "wh_main_emp_empire", "wh_main_talabecland", "tp_vas_anc_talabecland", "wh_main_talabecland_talabheim", {"wh_main_talabecland_talabheim","wh_main_talabecland_kemperbad"}, 590, 486, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
 table.insert(empire_vassal_table, talabecland);
-local reikland = vassal_object_manager.new("wh_main_emp_empire", "wh_main_emp_empire", "wh_main_reikland", "nil", "wh_main_reikland_altdorf", {"wh_main_reikland_altdorf","wh_main_reikland_eilhart", "wh_main_reikland_helmgart", "wh_main_reikland_grunburg"}, 486, 438, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
+local reikland = vassal_object_manager.new("wh_main_emp_empire", "wh_main_emp_empire", "wh_main_reikland", "tp_vas_anc_reikland", "wh_main_reikland_altdorf", {"wh_main_reikland_altdorf","wh_main_reikland_eilhart", "wh_main_reikland_helmgart", "wh_main_reikland_grunburg"}, 486, 438, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
 table.insert(empire_vassal_table, reikland);
 -- note Reikland is the overlord, but is added to ensure reikland provinces can be managed in case vassals control them!
 
@@ -32,12 +32,13 @@ table.insert(empire_vassal_table, reikland);
 ---------------------------------------------------------------
 --  LISTENER FUNCTIONS
 
--- Listener adds ancillary to characters on turn start assuming objectives are compelted.
+-- Listener adds ancillary to characters on turn start assuming objectives are compelted.  
 function vassal_ancillary_listener()
+    out("STEC: Acnillary listener starting");
 	core:add_listener(
 		"ancillary_listener",
 		"CharacterTurnStart", 
-		function(context) return context:character():faction():name() == "wh_main_emp_empire" end,
+		function(context) return context:character():faction():name() == "wh_main_emp_empire" and context:character():character_type("general") end,
         function(context)
                 local current_province = context:character():region():province_name();
                 local char_str = cm:char_lookup_str(context:character())
@@ -66,6 +67,7 @@ end;
 
 --Listener changes ownership of settlment if conditions are met on sacking.
 function vassal_sack_listener()
+    out("STEC: Sack listener starting");
     core:add_listener(
 		"sack_listener_emp",
 		"CharacterSackedSettlement", 
@@ -95,6 +97,7 @@ end;
 
 -- Listener ammends the vassal effect on faction turn start assuming objectives are completed. (calls a function defined under OTHER FUNCTIONS)
 function vassal_effect_listener()
+    out("STEC: Effect listener starting");
     core:add_listener(
         "overlord_emp_turn",
         "FactionTurnStart",
@@ -120,6 +123,7 @@ end;
 
 -- Listener for the two region dilemmas. Will gift all regions to rightful owners depending on who owns them. Will also ressurect factions if they are dead.
 function stec_dilemma_listener()
+    out("STEC: Dilemma listener starting");
     core:add_listener(
         "stec_dilemma_listener",
         "DilemmaChoiceMadeEvent", 
@@ -137,8 +141,12 @@ function stec_dilemma_listener()
             for i=1, #empire_vassal_table do
                 if empire_vassal_table[i]:emergence_check(temp_bool) then
                     empire_vassal_table[i]:emerging_army();
+                    if eom then
+                        eom:get_elector(empire_vassal_table[i].vassal_name):change_loyalty(20)
+                    end
                 end;
                 cm:callback(function() empire_vassal_table[i]:region_transfer(temp_bool); end, 0.5); --callback gives time for army to spawn before region transfers.
+                -- I could put EOm modifiers for recipient ofr regions and current owners... but that might need to be done in the object.
             end;
     
         end,
@@ -147,7 +155,8 @@ function stec_dilemma_listener()
 end;
 
 -- Dilemma countdown currently set to get 2 dilemmas every 20 turns!
-function stec_dielmma_trigger()
+function stec_dilemma_trigger()
+    out("STEC: Dilemma trigger listener starting");
     local dilemma_countdown = 20;
 
     core:add_listener(
@@ -175,6 +184,7 @@ end;
 
 -- function for use with EOM - forces vassaling when someone is at max loyalty at the satrt of Empire turn.
 function force_make_vassal()
+    out("STEC: EOM vassaling listener starting");
     core:add_listener(
     "EOM_loyalty_listener", 
     "FactionTurnStart", 
@@ -286,34 +296,33 @@ end;
 ---------------------------------------------------------------
 -- Function intitiates mod - detects for Empire of Man.
 function stec_master()
-    out("STEC: INIT");
+    out("STEC: INIT, Checking for EOM");
     -- listeners that always run go here.
-    cm:force_diplomacy("culture:wh_main_emp_empire", "culture:wh_main_emp_empire", "vassal", true, true, false); --allows Empire to vassal other empire provinces
+      
     vassal_ancillary_listener();
+    stec_dilemma_trigger()
     vassal_sack_listener();
     stec_dilemma_listener();
+    vassal_effect_listener()
 
     -- This detects for "Empire OF Man" Mod by Drunbk Flamingo. If that mod is present this mod will adapt and become a submod.
     if eom then
         out("STEC: EOM DETECTED");
         eom:set_core_data("tweaker_no_full_loyalty_events", true); --disables EOM confederating stuff.
+        cm:force_diplomacy("culture:wh_main_emp_empire", "culture:wh_main_emp_empire", "vassal", true, true, false); --allows Empire to vassal other empire provinces
         force_make_vassal();
-         stec_marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "xxxxxx", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},408,474, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
-         stec_sylvania = vassal_object_manager.new("wh_main_emp_sylvania", "wh_main_emp_empire", "wh_main_western_sylvania", "xxxxxx", "wh_main_western_sylvania_castle_templehof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 651, 444, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
-         stec_vampire = vassal_object_manager.new("wh_main_vmp_schwartzhafen","wh_main_emp_empire", "wh_main_eastern_sylvania", "xxxxxx", "wh_main_eastern_sylvania_castle_frakenhof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 690, 422,"wh_main_emp_art_mortar,wh_main_vmp_inf_grave_guard_1,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_cav_black_knights_0,wh_main_vmp_mon_dire_wolves,wh_main_vmp_mon_fell_bats,wh_main_vmp_mon_fell_bats");
-               
+         stec_marienburg = vassal_object_manager.new("wh_main_emp_marienburg", "wh_main_emp_empire", "wh_main_the_wasteland", "tp_vas_anc_marienburg", "wh_main_the_wasteland_marienburg", {"wh_main_the_wasteland_gorssel", "wh_main_the_wasteland_marienburg"},408,474, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
+         stec_sylvania = vassal_object_manager.new("wh_main_emp_sylvania", "wh_main_emp_empire", "wh_main_western_sylvania", "tp_vas_anc_sylvania" , "wh_main_western_sylvania_castle_templehof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 651, 444, "wh_main_emp_art_mortar,wh_main_emp_inf_greatswords,wh_main_emp_inf_swordsmen,wh_main_emp_inf_swordsmen,wh_main_emp_inf_spearmen_0,wh_main_emp_inf_spearmen_0,wh_main_emp_cav_empire_knights,wh_main_emp_cav_outriders_0,wh_main_emp_inf_crossbowmen,wh_main_emp_inf_crossbowmen");
+         stec_vampire = vassal_object_manager.new("wh_main_vmp_schwartzhafen","wh_main_emp_empire", "wh_main_eastern_sylvania", "tp_vas_anc_vlad", "wh_main_eastern_sylvania_castle_frakenhof", {"wh_main_western_sylvania_castle_templehof", "wh_main_western_sylvania_fort_oberstyre","wh_main_western_sylvania_schwartzhafen", "wh_main_eastern_sylvania_castle_drakenhof","wh_main_eastern_sylvania_eschen","wh_main_eastern_sylvania_waldenhof"}, 690, 422,"wh_main_emp_art_mortar,wh_main_vmp_inf_grave_guard_1,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_0,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_inf_skeleton_warriors_1,wh_main_vmp_cav_black_knights_0,wh_main_vmp_mon_dire_wolves,wh_main_vmp_mon_fell_bats,wh_main_vmp_mon_fell_bats");
+         
         stec_vlad_listener();
         stec_sylvania_listener();
+        stec_marienburg_listener();
 
 -- If no EOM then do this.
     else
         out("STEC: No EOM");
+        cm:force_diplomacy("culture:wh_main_emp_empire", "culture:wh_main_emp_empire", "vassal", true, true, false); --allows Empire to vassal other empire provinces
         elector_appeasement_listeners()
     end;
 end;
-
-
-
---TO DO
---creation of new ancillaries for vlad/ sylvania/ marienburg
---testing uughghghghghghghg
