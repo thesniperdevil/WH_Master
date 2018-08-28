@@ -57,7 +57,7 @@ function vassal_object_manager.region_list(self, region_check)
 
     for i=1, #region_list do
         if region_list[i] == region_check then
-            out("");
+            
             return true
         end;
     end;

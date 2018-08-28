@@ -51,7 +51,7 @@ function vassal_ancillary_listener()
                 
 
                 if temp:condition_check() and (current_province == temp_province) then
-                    
+                        out("STEC: all conditions passed")
                     if not context:character():has_ancillary(temp_ancillary) then
                         cm:force_add_and_equip_ancillary(char_str, temp_ancillary);
                         out("STEC: ancillary rewarded");
