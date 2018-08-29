@@ -46,7 +46,7 @@ function vassal_ancillary_listener()
 
 			for i=1, #empire_vassal_table do
                 local temp = empire_vassal_table[i];
-                local temp_province = temp.vassal_province;
+                local temp_province = temp.home_province;
                 local temp_ancillary = temp.ancillary_name;
                 
 
