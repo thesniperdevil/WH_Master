@@ -146,7 +146,9 @@ function stec_dilemma_listener()
                     end
                 end;
                 cm:callback(function() empire_vassal_table[i]:region_transfer(temp_bool); end, 0.5); --callback gives time for army to spawn before region transfers.
-                -- I could put EOm modifiers for recipient ofr regions and current owners... but that might need to be done in the object.
+                if eom then
+                    eom:get_elector(empire_vassal_table[i].vassal_name):change_loyalty(10)
+                end
             end;
     
         end,
@@ -296,16 +298,20 @@ end;
 ---------------------------------------------------------------
 -- Function intitiates mod - detects for Empire of Man.
 function stec_master()
+    local stec_empire = cm:model():world():faction_by_key("wh_main_emp_empire");
+    if not stec_empire:is_human() then
+        return -- this ensures nothing fires on a non Empire campaign.
+    end;
     out("STEC: INIT, Checking for EOM");
     -- listeners that always run go here.
       
     vassal_ancillary_listener();
-    stec_dilemma_trigger()
+    stec_dilemma_trigger();
     vassal_sack_listener();
     stec_dilemma_listener();
-    vassal_effect_listener()
+    vassal_effect_listener();
 
-    -- This detects for "Empire OF Man" Mod by Drunbk Flamingo. If that mod is present this mod will adapt and become a submod.
+    -- This detects for "Empire OF Man" Mod by Drunk Flamingo. If that mod is present this mod will adapt and become a submod.
     if eom then
         out("STEC: EOM DETECTED");
         eom:set_core_data("tweaker_no_full_loyalty_events", true); --disables EOM confederating stuff.
@@ -323,6 +329,6 @@ function stec_master()
     else
         out("STEC: No EOM");
         cm:force_diplomacy("culture:wh_main_emp_empire", "culture:wh_main_emp_empire", "vassal", true, true, false); --allows Empire to vassal other empire provinces
-        elector_appeasement_listeners()
+        elector_appeasement_listeners();
     end;
 end;
