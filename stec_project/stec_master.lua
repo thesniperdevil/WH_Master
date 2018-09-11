@@ -168,16 +168,18 @@ function stec_dilemma_trigger()
             return context:faction():name() == "wh_main_emp_empire"; --overlord faction
         end,
         function(context)
-            out("STEC: countdown listnere fired.");
-            dilemma_countdown = dilemma_countdown - 1;
             
+            dilemma_countdown = dilemma_countdown - 1;
+            out("STEC: countdown listener is at"..dilemma_countdown);
             if dilemma_countdown <= 0 then
                 dilemma_countdown = 20;
                 return;
             elseif dilemma_countdown == 15 then
                 cm:trigger_dilemma("wh_main_emp_empire", "vas_reg_main_emp_respect_borders", true);
+                out("STEC: empire dilemma fired");
             elseif dilemma_countdown == 5 then
                 cm:trigger_dilemma("wh_main_emp_empire", "vas_reg_main_emp_vassal_respect", true);
+                out("STEC: vassal dilemma fired");
             end;
         end,
         true
@@ -195,7 +197,7 @@ function force_make_vassal()
             for i=1, #empire_vassal_table do
                 local this_vassal = empire_vassal_table[i].vassal_name;
                 --local this_is_vassal = empire_vassal_table[i].is_vassal_of("wh_main_emp_empire");
-            
+                if not eom:get_core_data_with_key("tweaker_no_full_loyalty_events") == true then out("STEC: EOM confed is still active!") end;
                 if eom:get_elector(this_vassal):loyalty() > 99 and eom:get_elector(this_vassal):status() == "normal" then
                     cm:force_make_vassal("wh_main_emp_empire",this_vassal);
                 --else ifeom:get_elector(this_vassal):loyalty() < 10 and this_is_vassal then
@@ -300,6 +302,7 @@ end;
 function stec_master()
     local stec_empire = cm:model():world():faction_by_key("wh_main_emp_empire");
     if not stec_empire:is_human() then
+        out("STEC: empire is not human stec will not INIT");
         return -- this ensures nothing fires on a non Empire campaign.
     end;
     out("STEC: INIT, Checking for EOM");
