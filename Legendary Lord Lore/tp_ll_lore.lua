@@ -48,17 +48,18 @@ function tp_event_key.listener_setup(self)
                         true,
                         self.event_pic
                     );
-                    cm:set_saved_value(self.event_key.."_occured", true); -- remembering that this event has occured.]]
+                    cm:set_saved_value(self.event_key.."_occured", true); -- remembering that this event has occured.
+                    core:remove_listener(self.event_key);
                 end;
             end,
-        false
+        true
     );
 end;
 
 --------------------------------------------------------------
 -- Creating each instance of the event object.
 --------------------------------------------------------------
-local vlad_lahmia = tp_event_key.new("vlad_lahmia","names_name_2147345130", "wh_main_eastern_sylvania_castle_drakenhof", 900, "wh_main_vmp_schwartzhafen");
+local vlad_lahmia = tp_event_key.new("vlad_lahmia","names_name_2147345130", "wh_main_eastern_sylvania_castle_drakenhof", 910, "wh_main_vmp_schwartzhafen");
 --made the region drakenhof for testing needs to be reverted to Lahmia
 
 function tp_start_listeners()
