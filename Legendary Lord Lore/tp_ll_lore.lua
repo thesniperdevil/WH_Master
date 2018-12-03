@@ -2,13 +2,14 @@
 -- Defining the lua object and it's functions that manages the events.
 --------------------------------------------------------------
 
-local tp_event_key = {}; --blank object
-local event_table = {}; --table holds object instances
+local tp_event_key = {}; --# assume tp_event_key: EO --blank object
+local event_table = {}--: vector<EO>--table holds object instances
 
+--v function(event_key: string, event_character: string, event_region: string, event_pic: number, event_faction: string)--> EO
 function tp_event_key.new(event_key, event_character, event_region, event_pic, event_faction)
     local self = {}
     setmetatable(self, {__index = tp_event_key});
-    --# assume self: VRM
+    --# assume self: EO
     self.event_key = event_key;
     self.event_character = event_character;
     self.event_region = event_region;
@@ -19,10 +20,10 @@ function tp_event_key.new(event_key, event_character, event_region, event_pic, e
     return self;
 end;
 
-
+--v function(self: EO)
 function tp_event_key.listener_setup(self)
     -- Check to see if event has already occured.
-    if get_saved_value(self.event_key.."_occured") == true then
+    if cm:get_saved_value(self.event_key.."_occured") == true then
         out("LL_L: "..self.event_key.."has already occured");
         return; 
     end;
@@ -34,13 +35,13 @@ function tp_event_key.listener_setup(self)
             function(context) 
                 cm:show_message_event(
                     self.event_faction,
-                    "event_feed_strings_text_title_event"..self.event_key,
-                    "event_feed_strings_text_sub_title_event"..self.event_key,
-                    "event_feed_strings_text_description_event"..self.event_key,
+                    self.event_key.."_title", -- eg "Lore of Vlad"
+                    self.event_key.."_subtitle", -- eg "The Rebirth of Vashanesh"
+                    self.event_key.."_description", --eg "Vashanesh entered the city of Lahmia a man and left an undead monster of awesome"
                     true,
                     self.event_pic
                 );
-                cm:set_saved_value(self.event_key.."_occured", true);
+                cm:set_saved_value(self.event_key.."_occured", true); -- remembering that this event has occured.
             end,
         true
     );
@@ -49,7 +50,7 @@ end;
 --------------------------------------------------------------
 -- Creating each instance of the event object.
 --------------------------------------------------------------
-local vlad_kislev = tp_event_key.new("vlad_lamia","names_name_2147345130", "wh2_main_devils_backbone_lahmia", 591, "wh_main_vmp_schwartzhafen");
+local vlad_kislev = tp_event_key.new("vlad_lahmia","names_name_2147345130", "wh2_main_devils_backbone_lahmia", 591, "wh_main_vmp_schwartzhafen");
 
 
 function tp_start_listeners()

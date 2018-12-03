@@ -15,7 +15,20 @@ local OST_APPEASED = false; --# assume OST_APPEASED: boolean
 local STIR_APPEASED = false; --# assume STIR_APPEASED: boolean
 local TAL_APPEASED = false; --# assume TAL_APPEASED: boolean
 local WIS_APPEASED = false; --# assume WIS_APPEASED: boolean
-		
+
+
+--v function(vassal_to_be: CA_FACTION)
+function make_peace(vassal_to_be)
+	if vassal_to_be:factions_at_war_with() then
+	local enemy_list = vassal_to_be:factions_at_war_with();
+
+		for i = 0, enemy_list:num_items() -1 do
+			local this_enemy = enemy_list:item_at(i);
+			cm:force_make_peace(vassal_to_be:name(), this_enemy:name());
+		end;
+	end;
+end;
+
 
 function elector_appeasement_listeners()
 	
@@ -95,7 +108,7 @@ function elector_appeasement_listeners()
 		out("STEC: TURN START IS STIRLAND DEAD? "..tostring(stirAlive:is_dead()).."checking for worship research")
 		
 		if stirAlive:is_dead() == false and context:faction():has_technology("tech_emp_worship_2") then
-		
+			make_peace(stirAlive);
 			cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_stirland");
 			cm:show_message_event(
 			STEC_FACTIONEMPIRE,
@@ -127,6 +140,7 @@ function elector_appeasement_listeners()
 		out("STEC: TURN START IS NORDLAND DEAD? "..tostring(nordAlive:is_dead()).."checking for sea charts research")
 		
 		if nordAlive:is_dead() == false and context:faction():has_technology("tech_emp_port_3") then
+			make_peace(nordAlive);
 			cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_nordland");
 			cm:show_message_event(
 			STEC_FACTIONEMPIRE,
@@ -160,6 +174,7 @@ function elector_appeasement_listeners()
 			out("STEC: BATTLE COMPLETE IS HOCHLAND DEAD? "..tostring(hochAlive:is_dead()).."checking for LL")
 			
 			if (char:get_forename() == "names_name_2147343849" or char:get_forename() == "names_name_2147343922" or char:get_forename() == "names_name_2147358013") and HOCH_APPEASED == false and hochAlive:is_dead() == false then
+				make_peace(hochAlive);
 			cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_hochland");
 			cm:show_message_event(
 				STEC_FACTIONEMPIRE,
@@ -192,6 +207,7 @@ function elector_appeasement_listeners()
 			out("STEC: BATTLE COMPLETE IS OSTLAND DEAD? "..tostring(ostAlive:is_dead()).."Checking for LL")
 			
 			if (char:get_forename() == "names_name_2147343849" or char:get_forename() == "names_name_2147343922" or char:get_forename() == "names_name_2147358013") and OST_APPEASED == false and ostAlive:is_dead() == false then
+				make_peace(ostAlive);
 				cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_ostland");
 			cm:show_message_event(
 				STEC_FACTIONEMPIRE,
@@ -229,7 +245,8 @@ function elector_appeasement_listeners()
 				local current_char = char_list:item_at(i)
 				local char_name = current_char:get_forename()
 								
-				if (char_name == "names_name_2147343849" or char_name == "names_name_2147343922" or char_name == "names_name_2147358013") and current_char:rank() > 20 then
+				if (char_name == "names_name_2147343849" or char_name == "names_name_2147343922" or char_name == "names_name_2147358013") and current_char:rank() > 19 then
+					make_peace(midAlive);
 					cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_middenland");
 					cm:show_message_event(
 						STEC_FACTIONEMPIRE,
@@ -265,6 +282,7 @@ function elector_appeasement_listeners()
 		out("STEC: TURN START IS TALABEC DEAD? "..tostring(talAlive:is_dead()).."checking for Altdorf level")
 		
 		if talAlive:is_dead() == false and (altdorfFour == true or altdorfFive == true) then
+			make_peace(talAlive);
 			cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_talabecland");
 					cm:show_message_event(
 						STEC_FACTIONEMPIRE,
@@ -304,6 +322,7 @@ function elector_appeasement_listeners()
 				local forges_built = current_region:building_exists("wh_main_emp_forges_3")				
 								
 				if forges_built == true and WIS_APPEASED == false then -- this check occurs again in case multiple regions have the forge when the loop begins.
+					make_peace(wisAlive);
 					cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_wissenland");
 					cm:show_message_event(
 						STEC_FACTIONEMPIRE,
@@ -340,6 +359,7 @@ function elector_appeasement_listeners()
 			out("STEC: CHAR TURN START IS AVERLAND DEAD?"..tostring(averAlive:is_dead()).."AND IS APPEASED?"..tostring(AVER_APPEASED))	
 			
 			if  location == "wh_main_averland_averheim" and averAlive:is_dead() == false then
+				make_peace(averAlive);
 				cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_averland");
 					cm:show_message_event(
 						STEC_FACTIONEMPIRE,
@@ -373,6 +393,7 @@ function elector_appeasement_listeners()
 			out("STEC: CHAR TURN START IS OSTERMARK DEAD? "..tostring(osterAlive:is_dead()).."AND IS APPEASED?"..tostring(OSTER_APPEASED))
 			
 			if  location == "wh_main_ostermark_bechafen" and osterAlive:is_dead() == false then
+				make_peace(osterAlive);
 				cm:force_make_vassal("wh_main_emp_empire","wh_main_emp_ostermark");
 					cm:show_message_event(
 						STEC_FACTIONEMPIRE,
