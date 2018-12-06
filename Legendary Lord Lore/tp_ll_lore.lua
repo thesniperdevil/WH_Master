@@ -27,9 +27,11 @@ function tp_event_key.listener_setup(self)
         out("LL_L: "..self.event_key.."has already occured");
         return; 
     end;
+    out("LL_L: Listener set up for "..self.event_key);
     -- Creating listener
     core:add_listener(
         self.event_key,
+<<<<<<< HEAD
         "CharacterTurnStart",
         function(context) return (context:character():get_forname() == self.event_character and context:character():region():name() == self.event_region) end,
             function(context) 
@@ -42,25 +44,53 @@ function tp_event_key.listener_setup(self)
                     self.event_pic
                 );
                 cm:set_saved_value(self.event_key.."_occured", true); -- remembering that this event has occured.
+=======
+        "CharacterTurnStart", 
+        function(context) return (context:character():faction():is_human() and context:character():region():name() == self.event_region) end,
+            function(context)
+                local this_char_name = context:character():get_forename();
+                out("LL_L: hopefully"..this_char_name.." is the same as "..self.event_character)
+
+                if this_char_name == self.event_character then
+                    out("LL_L: message going out for"..self.event_key);
+
+                    cm:show_message_event(
+                        self.event_faction,
+                        "event_feed_strings_text_"..self.event_key.."_title", -- eg "Lore of Vlad"
+                        "event_feed_strings_text_"..self.event_key.."_subtitle", -- eg "The Rebirth of Vashanesh"
+                        "event_feed_strings_text_"..self.event_key.."_description", --eg "Vashanesh entered the city of Lahmia a man and left an undead monster of awesome"
+                        true,
+                        self.event_pic
+                    );
+                    cm:set_saved_value(self.event_key.."_occured", true); -- remembering that this event has occured.]]
+                end;
+>>>>>>> c8c77fa2969433971bcec1d1d5f0446e521884c7
             end,
-        true
+        false
     );
 end;
 
 --------------------------------------------------------------
 -- Creating each instance of the event object.
 --------------------------------------------------------------
+<<<<<<< HEAD
 local vlad_kislev = tp_event_key.new("vlad_lahmia","names_name_2147345130", "wh2_main_devils_backbone_lahmia", 591, "wh_main_vmp_schwartzhafen");
 
+=======
+local vlad_lahmia = tp_event_key.new("vlad_lahmia","names_name_2147345130", "wh_main_eastern_sylvania_castle_drakenhof", 900, "wh_main_vmp_schwartzhafen");
+--made the region drakenhof for testing needs to be reverted to Lahmia
+>>>>>>> c8c77fa2969433971bcec1d1d5f0446e521884c7
 
 function tp_start_listeners()
     for i=1, #event_table do
         local this_instance = event_table[i];
+        out("LL_L: Initiating "..this_instance.event_key);
         this_instance:listener_setup();
     end;
 end;
 
 events.FirstTickAfterWorldCreated[#events.FirstTickAfterWorldCreated+1] = function()
+    out("LL_L: Script Initiating");
 	tp_start_listeners();
 end;
 
