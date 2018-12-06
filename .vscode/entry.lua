@@ -1,3 +1,3 @@
 require("experiments/paste_dump")
-require("Legendary Lord Lore/tp_ll_lore")
+require("experiments/region_politics")
 --require("stec_project/stec_archive/vassal_regions")
