@@ -1,66 +1,155 @@
-lord_object_manager = {} --# assume global lord_object_manager: LO
-lord_holder = {} --: vector<LO>
+--------------------------------------------------------------
 
-    --v function(lord_subtype: string, lord_faction: string, lord_army_list: vector<string> ) --> LO
-    function lord_object_manager.new(lord_subtype, lord_faction, lord_army_list)
-        local self = {}
-        setmetatable(self, {__index = lord_object_manager});
-        --# assume self: LO
-        self.lord_subtype = lord_subtype;
-        self.lord_faction = lord_faction; 
-        self.lord_army_list = lord_army_list; 
-        table.insert(lord_holder, self);         
-        out("AEX: We've made a new table for the lord: "..self.lord_subtype);
-        return self; 
-    end;
+-- Defining the lua object and it's functions that manages the events.
+
+--------------------------------------------------------------
 
 
---v function(self: LO) --> CA_CHAR
-    function lord_object_manager.get_lord(self) -- this function is expecting a 'table instance' for its input.
-        local this_faction = cm:get_faction(self.lord_faction);
-        local this_char_list = this_faction:character_list();
 
-        for i = 0, this_char_list:num_items() -1 do
-            local current_char = this_char_list:item_at(i);
-            if current_char:character_subtype_key() == self.lord_subtype then
-                out("AEX: returning character");
-                return current_char;
-            end;
-            
-        end;
-       
-    end;
+local tp_event_key = {}; --# assume tp_event_key: EO --blank object
 
-    --v function(self: LO, current_char: CA_CHAR)
-    function lord_object_manager.new_army(self, current_char)
-        local char_cqi = cm:char_lookup_str(current_char:cqi())
-        out("AEX: adding new units");
-        for i = 1, #self.lord_army_list do
-            local this_unit = self.lord_army_list[i];
-            cm:grant_unit_to_character(char_cqi, this_unit);
-        end;
-    end;
-
-------------- metatable defining stuff ends----------------
+local event_table = {}--: vector<EO>--table holds object instances
 
 
--- we have set up 3 "instances" of our meta table. for Vlad, isabella and manfred
 
-local vladdy_boi = lord_object_manager.new("dlc04_vmp_vlad_con_carstein","wh_main_vmp_schwartzhafen",{"wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_cav_black_knights_0", "wh_main_vmp_mon_vargheists", "wh_main_vmp_mon_vargheists"});
-local issi_gal = lord_object_manager.new("pro02_vmp_isabella_von_carstein","wh_main_vmp_schwartzhafen",{"wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_cav_black_knights_0", "wh_main_vmp_mon_vargheists", "wh_main_vmp_mon_vargheists"});
-local manny_boi = lord_object_manager.new("vmp_mannfred_von_carstein", "wh_main_vmp_vampire_counts", {"wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_inf_grave_guard_0", "wh_main_vmp_inf_grave_guard_0", "wh_main_vmp_inf_cairn_wraiths"});
-local hella_boi = lord_object_manager.new("dlc04_vmp_helman_ghorst","wh_main_vmp_vampire_counts",{"wh_main_vmp_inf_zombie", "wh_main_vmp_inf_zombie", "wh_main_vmp_inf_zombie", "wh_main_vmp_inf_crypt_ghouls", "wh_main_vmp_inf_crypt_ghouls", "wh_dlc04_vmp_veh_corpse_cart_0", "wh_dlc04_vmp_veh_corpse_cart_0"});
-local kemmy_boi = lord_object_manager.new("vmp_heinrich_kemmler","wh_main_vmp_vampire_counts",{"wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_inf_grave_guard_0", "wh_main_vmp_inf_grave_guard_0", "wh_main_vmp_inf_cairn_wraiths"});
-local reddy_boi = lord_object_manager.new("wh_dlc05_vmp_red_duke","wh_main_vmp_mousillon",{"wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_inf_skeleton_warriors_1", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_mon_fell_bats", "wh_main_vmp_cav_black_knights_0", "wh_main_vmp_cav_black_knights_0", "wh_main_vmp_veh_black_coach"});
+--v function(event_key: string, event_character: string, event_region: string, event_pic: number, event_faction: string)--> EO
 
-function vmp_army_tweaks()
-    for i = 1, #lord_holder do
-        local current_lord_object = lord_holder[i];
-        local current_char = current_lord_object:get_lord();
+function tp_event_key.new(event_key, event_character, event_region, event_pic, event_faction)
 
-        if current_char ~= nil then
-            cm:remove_all_units_from_general(current_char);
-            current_lord_object:new_army(current_char);
-        end;
-    end;
+    local self = {}
+
+    setmetatable(self, {__index = tp_event_key});
+
+    --# assume self: EO
+
+    self.event_key = event_key;
+
+    self.event_character = event_character;
+
+    self.event_region = event_region;
+
+    self.event_pic = event_pic;
+
+    self.event_faction = event_faction;
+
+    table.insert(event_table, self); --adds instance to holding table.
+
+    out("LL_L: New event object entered: "..self.event_key);
+
+    return self;
+
 end;
+
+
+
+--v function(self: EO)
+
+function tp_event_key.listener_setup(self)
+
+    -- Check to see if event has already occured.
+
+    if cm:get_saved_value(self.event_key.."_occured") == true then
+
+        out("LL_L: "..self.event_key.."has already occured");
+
+        return; 
+
+    end;
+
+    out("LL_L: Listener set up for "..self.event_key);
+
+    -- Creating listener
+
+    core:add_listener(
+
+        self.event_key,
+
+        "CharacterTurnStart", 
+
+        function(context) return (context:character():faction():is_human() and context:character():region():name() == self.event_region) end,
+
+            function(context)
+
+                local this_char_name = context:character():get_forename();
+
+                out("LL_L: hopefully"..this_char_name.." is the same as "..self.event_character)
+
+
+
+                if this_char_name == self.event_character then
+
+                    out("LL_L: message going out for"..self.event_key);
+
+
+
+                    cm:show_message_event(
+
+                        self.event_faction,
+
+                        "event_feed_strings_text_"..self.event_key.."_title", -- eg "Lore of Vlad"
+
+                        "event_feed_strings_text_"..self.event_key.."_subtitle", -- eg "The Rebirth of Vashanesh"
+
+                        "event_feed_strings_text_"..self.event_key.."_description", --eg "Vashanesh entered the city of Lahmia a man and left an undead monster of awesome"
+
+                        true,
+
+                        self.event_pic
+
+                    );
+
+                    cm:set_saved_value(self.event_key.."_occured", true); -- remembering that this event has occured.]]
+
+                end;
+
+            end,
+
+        false
+
+    );
+
+end;
+
+
+
+--------------------------------------------------------------
+
+-- Creating each instance of the event object.
+
+--------------------------------------------------------------
+
+local vlad_lahmia = tp_event_key.new("vlad_lahmia","names_name_2147345130", "wh_main_eastern_sylvania_castle_drakenhof", 900, "wh_main_vmp_schwartzhafen");
+
+--made the region drakenhof for testing needs to be reverted to Lahmia
+
+function tp_start_listeners()
+
+    for i=1, #event_table do
+
+        local this_instance = event_table[i];
+
+        out("LL_L: Initiating "..this_instance.event_key);
+
+        this_instance:listener_setup();
+
+    end;
+
+end;
+
+
+
+events.FirstTickAfterWorldCreated[#events.FirstTickAfterWorldCreated+1] = function()
+
+    out("LL_L: Script Initiating");
+
+	tp_start_listeners();
+
+end;
+
+
+
+
+
+
+
+-- script ends

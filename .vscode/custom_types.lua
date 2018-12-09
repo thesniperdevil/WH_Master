@@ -1,3 +1,3 @@
 --# assume global class VRM
---# assume global class EO
---# assume global class LO
+--# assume global class EO  --for the event object for LL lore
+--# assume global class FRM -- region manager
