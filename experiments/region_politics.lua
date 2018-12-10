@@ -5,11 +5,11 @@
 
 
 local faction_region_manager = {} --# assume faction_region_manager: FRM
-local object_list = {} --:vector<FRM>
+local object_list = {} --:map<string,FRM>
 
 --constructor function allows defining of objects.
---v function(faction: string, subculture: string, native_land: vector<string>, cultural_land: vector<string>, native_effect: string, cultural_effect: string) --> FRM
-function faction_region_manager.new(faction, subculture, native_land, cultural_land, native_effect, cultural_effect)
+--v function(faction: string, subculture: string, native_land: vector<string>, cultural_land: vector<string>) --> FRM
+function faction_region_manager.new(faction, subculture, native_land, cultural_land)
     local self = {}
     setmetatable(self, {__index = faction_region_manager});
     --# assume self: FRM
@@ -17,12 +17,13 @@ function faction_region_manager.new(faction, subculture, native_land, cultural_l
     self.subculture = subculture;
     self.native_land = native_land;
     self.cultural_land = cultural_land;
-    self.native_effect = native_effect; --was planning to use effect bundles to do siploamtic malus but they dont stack :(
-    self.cultural_effect = cultural_effect; --was planning to use effect bundles to do siploamtic malus but they dont stack :(
-    table.insert(object_list, self);
+    object_list[faction] = self;
     out("TP_FRM: New genefaction entered "..tostring(self.faction));
     return self;
 end;
+
+-- object_list[faction] = nil    is how you remove the object from the script
+
 
 -- function applies diploamtic malus on a faction if it owns a region this faction considers theirs by rights.
 --v function(self: FRM)
@@ -82,17 +83,17 @@ end;
     -- defines the regions a faction /culture considers "native" and what is considered "cultural"
     local dawi = faction_region_manager.new("wh_main_dwf_dwarfs", "wh_main_sc_dwf_dwarfs", 
     {"wh_main_the_silver_road_karaz_a_karak","wh_main_the_silver_road_mount_squighorn","wh_main_the_silver_road_the_pillars_of_grungni"},
-     {"wh_main_reikland_altdorf"}, "test_effect", "test_effect_2")
+     {"wh_main_reikland_altdorf"})
 
     local empire = faction_region_manager.new("wh_main_emp_empire", "wh_main_sc_emp_empire", 
     {"wh_main_reikland_altdorf","wh_main_reikland_grunburg","wh_main_reikland_eilhart","wh_main_reikland_helmgart"},
-     {}, "test_effect", "test_effect_2")
+     {})
 
 
 -- start function goes through the objects that are entered and sets up the listeners.
 function region_politics()
     out("TP_FRM: INITIALISE");
-    for i = 1, #object_list do
-        object_list[i]:listener();
+    for k, v in pairs(object_list) do
+        v:listener();
     end
 end;
